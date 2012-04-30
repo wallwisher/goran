@@ -13,6 +13,8 @@ module Goran
     rescue_from = options[:rescue_from] || Goran::DoubleFault
     # should the last exception in the iteration be rescued from?
     rescue_last = options[:rescue_last] != false
+    # what do do on rescue
+    on_rescue = options[:on_rescue]
     # time between successive calls.
     interval = options[:interval] || 0
     
@@ -29,8 +31,12 @@ module Goran
           result = fallback
         end
       rescue *rescue_from => e
-        raise e if i == max_tries && !rescue_last
-        result = options[:fallback] if options.has_key?(:fallback)
+        if i == max_tries && !rescue_last
+          raise e
+        else
+          result = options[:fallback] if options.has_key?(:fallback)
+          on_rescue.call(e) if on_rescue.kind_of?(Proc)
+        end
       ensure
         sleep interval unless interval.zero?
       end

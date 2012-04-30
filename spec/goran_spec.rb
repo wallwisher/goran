@@ -21,4 +21,10 @@ describe Goran do
   it 'does not protect from exception on the last run if so desired' do
     expect { Goran.serve(max_tries: 3, retry_if: 0, rescue_from: [StandardError, ArgumentError], rescue_last: false) { raise StandardError, 'Boo' } }.to raise_error
   end
+  
+  it 'runs a proc on rescue if one is provided' do
+    count = 0
+    Goran.serve(max_tries: 3, retry_if: 0, rescue_from: StandardError, on_rescue: lambda {|e| count+=1 }) { raise StandardError, 'Boo' }
+    count.should == 3
+  end
 end
