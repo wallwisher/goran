@@ -11,7 +11,7 @@ describe Goran do
   
   it 'uses fallback value if one is provided and none of the tries are successful' do
     count = 0
-    Goran.serve(max_tries: 3, retry_if: 0, fallback: 'hello') { count }.should == 'hello'
+    Goran.serve(max_tries: 3, retry_if: nil, fallback: 'hello') { nil }.should == 'hello'
   end
   
   it 'protects from exceptions' do

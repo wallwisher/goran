@@ -6,7 +6,7 @@ module Goran
     max_tries = options[:max_tries] || 1.0/0
     # if no retry is given, assume that the caller is just retrying to
     # handle exceptions. hence, make sure it always returns false.
-    retry_if = options[:retry_if] || lambda { |x| false }
+    retry_if = if options.has_key?(:retry_if) then options[:retry_if] else lambda { |x| false } end
     # set fallback value only if a fallback is defined
     fallback = options[:fallback] if options.has_key?(:fallback)
     # set exceptions to rescue from. set to fake exception if none provided
