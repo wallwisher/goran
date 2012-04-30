@@ -23,18 +23,17 @@ module Goran
       begin
         result = yield
         if retry_if.kind_of?(Proc)
-          puts retry_if
           break unless retry_if.call(result)
         elsif retry_if != result
           break
-        elsif defined? fallback
-          result = fallback
         end
+        # the flow should not come here if the result was good
+        result = fallback if options.has_key?(:fallback)
       rescue *rescue_from => e
         if i == max_tries && !rescue_last
           raise e
         else
-          result = options[:fallback] if options.has_key?(:fallback)
+          result = fallback if options.has_key?(:fallback)
           on_rescue.call(e) if on_rescue.kind_of?(Proc)
         end
       ensure
