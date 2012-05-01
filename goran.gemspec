@@ -2,14 +2,16 @@
 require File.expand_path('../lib/goran/version', __FILE__)
 
 Gem::Specification.new do |gem|
+  gem.date          = Time.now.strftime('%Y-%m-%d')
   gem.authors       = ["Nitesh"]
-  gem.email         = ["me@coffeebite.com"]
-  gem.summary       = %q{Goran runs blocks of code that return unexpected values/raise Exceptions multiple times or until when they succeed}
-  gem.homepage      = ""
+  gem.email         = ["nitesh@wallwisher.com"]
+  gem.summary       = %q{Goran is a ruby library to run blocks of code that return unexpected values/raise Exceptions multiple times or until they succeed}
+  gem.homepage      = "http://github.com/wallwisher/goran"
 
-  gem.files         = `git ls-files`.split($\)
-  gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
-  gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
+  gem.files         = %w[README.md Rakefile LICENSE]
+  gem.files         = Dir.glob('lib/**/*')
+  gem.files         = Dir.glob('bin/**/*')
+  gem.files         = Dir.glob('spec/**/*')
   gem.name          = "goran"
   gem.require_paths = ["lib"]
   gem.version       = Goran::VERSION
@@ -21,5 +23,8 @@ Gem::Specification.new do |gem|
     * run until the block returns a non-nil value
     * run until the block does not raise an exception
     * run until the block returns a non-zero value, to a maximum of 3 times, and return nil if all runs return a 0
+    
+    Goran is especially useful for running network calls which have unexpected outputs like 404, timeouts. It is an
+    easy way to build in retry logic into these calls and handle cases where these calls do not succeed at all.
 description
 end
