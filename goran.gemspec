@@ -9,9 +9,9 @@ Gem::Specification.new do |gem|
   gem.homepage      = "http://github.com/wallwisher/goran"
 
   gem.files         = %w[README.md Rakefile LICENSE]
-  gem.files         = Dir.glob('lib/**/*')
-  gem.files         = Dir.glob('bin/**/*')
-  gem.files         = Dir.glob('spec/**/*')
+  gem.files         += Dir.glob('lib/**/*')
+  gem.files         += Dir.glob('bin/**/*')
+  gem.files         += Dir.glob('spec/**/*')
   gem.name          = "goran"
   gem.require_paths = ["lib"]
   gem.version       = Goran::VERSION
