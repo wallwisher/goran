@@ -20,9 +20,6 @@ module Goran
 
     result = nil
     1.upto(max_tries) do |i|
-      # This flag will be true if the current attempt is successful
-      # and does not require a retry based on the retry_if condition.
-      is_final_success_for_this_attempt = false
       begin
         result = yield # Execute the main block of code
 
@@ -36,16 +33,19 @@ module Goran
 
         if !needs_retry_based_on_result
           # The operation was successful and the retry_if condition indicates no retry is needed.
-          is_final_success_for_this_attempt = true
           break # Exit the retry loop
         else
           # The operation succeeded, but retry_if condition indicates a retry is needed.
           # Apply fallback for this iteration if present; loop will continue.
           result = fallback if options.has_key?(:fallback)
+          
+          # Sleep before next attempt if there are more tries and interval > 0
+          if i < max_tries && interval > 0
+            Kernel.sleep(interval)
+          end
         end
-
       rescue *rescue_from => e
-        # An exception occurred. is_final_success_for_this_attempt remains false.
+        # An exception occurred. 
         if i == max_tries && !rescue_last
           # If it's the last try and we are not supposed to rescue the last exception, re-raise.
           raise e
@@ -55,18 +55,10 @@ module Goran
           result = fallback if options.has_key?(:fallback)
           # Call the on_rescue callback if provided.
           on_rescue.call(e) if on_rescue.kind_of?(Proc)
-          # The loop will either continue (if i < max_tries) or terminate (if i == max_tries).
-        end
-      ensure
-        # The ensure block always runs for the current iteration.
-        # We only sleep if:
-        # 1. The current attempt was NOT a "final success" (i.e., is_final_success_for_this_attempt is false).
-        #    This means either an exception occurred, or yield succeeded but retry_if dictated a retry.
-        # 2. AND we are not on the absolute last iteration that would exit the loop anyway (i.e., i < max_tries).
-        #    This prevents sleeping after the final attempt, regardless of its outcome.
-        # 3. AND the interval is greater than zero.
-        if !is_final_success_for_this_attempt && i < max_tries && interval > 0
-          sleep interval
+          # Sleep before next attempt if there are more tries and interval > 0
+          if i < max_tries && interval > 0
+            Kernel.sleep(interval)
+          end
         end
       end
     end
