@@ -15,6 +15,9 @@ Gem::Specification.new do |gem|
   gem.name          = "goran"
   gem.require_paths = ["lib"]
   gem.version       = Goran::VERSION
+  
+  gem.add_development_dependency 'rspec', '~> 3.0'
+  
   gem.description   = <<description
     Named after Goran Invanisevic, the tennis legend who won the Wimbledon after losing the final 3 times, 
     Goran provides a simple syntax to run a block of code multiple times. E.g.
