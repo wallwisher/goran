@@ -37,14 +37,29 @@ describe Goran do
       expect(count).to eq(1)
     end
 
-    it 'stops trying if the block runs successfully and its result matches the retry_if value' do
+    it 'retries if the block runs successfully until it stops matching the retry_if value' do
       count = 0
-      # retry_if: 1 means "success if block returns 1".
-      # Try 1: count=1, block returns 1. (retry_if value 1) == (result 1) -> true. Success. Break.
+      # retry_if: 1 means "retry if block returns 1".
+      # Try 1: count=1, block returns 1. (retry_if value 1) == (result 1) -> true. Retry.
+      # Try 2: count=2, block returns 2. (retry_if value 1) == (result 2) -> false. Break.
       final_result = Goran.serve(max_tries: 3, retry_if: 1) { count += 1; count }
-      expect(final_result).to eq(1)
-      expect(count).to eq(1)
+      expect(final_result).to eq(2)
+      expect(count).to eq(2)
     end
+
+
+    it 'retries if block returns nil and retry_if is nil (nil case)' do
+      count = 0
+      # retry_if: nil means "retry if block returns nil".
+      # Try 1: count=1, block returns nil. (retry_if value nil) == (result nil) -> true. Retry.
+      # Try 2: count=2, block returns nil. (retry_if value nil) == (result nil) -> true. Retry.
+      # Try 3: count=3, block returns 3. (retry_if value nil) == (result 3) -> false. Break.
+      final_result = Goran.serve(max_tries: 5, retry_if: nil) { count += 1; if count < 3; nil; else; count; end }
+      expect(final_result).to eq(3)
+      expect(count).to eq(3)
+    end
+
+
 
     it 'uses fallback value if one is provided and all tries are exhausted due to retry_if lambda' do
       count = 0
@@ -116,8 +131,13 @@ describe Goran do
       Goran.serve(max_tries: 3, interval: 0.1) { "success" }
     end
 
-    it 'does not sleep on an immediate successful attempt when interval is positive (matching retry_if value)' do
+    it 'does not sleep on an immediate successful attempt when interval is positive (not matching retry_if value)' do
       expect(Kernel).not_to receive(:sleep)
+      Goran.serve(max_tries: 3, interval: 0.1, retry_if: "failure_value") { "success_value" }
+    end
+
+    it 'sleeps on failed attempts when interval is positive (matching retry_if value)' do
+      expect(Kernel).to receive(:sleep).with(0.1).twice
       Goran.serve(max_tries: 3, interval: 0.1, retry_if: "success_value") { "success_value" }
     end
 
@@ -206,4 +226,5 @@ describe Goran do
       expect(call_count).to eq(2) # Ensure block ran twice
     end
   end
+  
 end

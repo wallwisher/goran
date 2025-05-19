@@ -1,3 +1,3 @@
 module Goran
-  VERSION = '0.7'
+  VERSION = '0.7.1'
 end
