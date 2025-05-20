@@ -28,7 +28,7 @@ module Goran
         if retry_if.kind_of?(Proc)
           needs_retry_based_on_result = retry_if.call(result) # true if retry is needed
         else
-          needs_retry_based_on_result = (retry_if != result) # true if retry is needed
+          needs_retry_based_on_result = (retry_if == result) # true if retry is needed
         end
 
         if !needs_retry_based_on_result
